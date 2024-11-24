@@ -136,121 +136,46 @@ def login_and_register(account):
             EC.element_to_be_clickable((By.XPATH, '//*[@id="memberSecureWordVerify"]'))
         ).click()
 
-        # رفتن به صفحه پوکر و منتظر ماندن برای لود کامل صفحه
-        logging.info("Navigating to poker page...")
-        driver.get("https://www.pokerklas628.com/tablegames/poker")
-        
-        # صبر برای لود شدن jQuery
-        WebDriverWait(driver, 20).until(
-            lambda driver: driver.execute_script("return typeof jQuery !== 'undefined'")
-        )
-        logging.info("jQuery loaded successfully")
-        
-        # کلیک روی دکمه پوکر
-        WebDriverWait(driver, 20).until(
-            EC.element_to_be_clickable((By.XPATH, '/html/body/div[2]/main/div[1]/article/main/section[3]/div[1]/div[2]/a[1]'))
-        ).click()
-        logging.info("Clicked on poker button")
-        
-        logging.info("Waiting for iframe to load...")
-        
-        # صبر برای لود شدن iframe
-        sleep(5)
-        
+        # به جای کار با iframe، مستقیماً URL رو باز می‌کنیم
         try:
-            # پیدا کردن iframe با JavaScript
+            logging.info("Finding poker URL...")
+            # صبر برای لود شدن iframe و گرفتن URL آن
             iframe = WebDriverWait(driver, 20).until(
                 lambda x: x.find_element(By.CSS_SELECTOR, "iframe[src*='pokerplaza']")
             )
+            poker_url = iframe.get_attribute('src')
+            logging.info(f"Found poker URL: {poker_url}")
             
-            if not iframe:
-                raise Exception("Iframe not found")
+            # باز کردن مستقیم URL
+            driver.get(poker_url)
+            logging.info("Navigated to poker URL directly")
             
-            logging.info(f"Found iframe with src: {iframe.get_attribute('src')}")
+            # صبر برای لود شدن صفحه
+            WebDriverWait(driver, 30).until(
+                EC.presence_of_element_located((By.XPATH, '//*[@id="root"]'))
+            )
+            logging.info("Found root element")
             
-            # اضافه کردن تاخیر قبل از سوئیچ
+            # صبر برای ناپدید شدن لودینگ
+            WebDriverWait(driver, 30).until(
+                EC.invisibility_of_element_located((By.CLASS_NAME, "lobby-loader"))
+            )
+            logging.info("Loading completed")
+            
+            # کمی تاخیر اضافی
             sleep(2)
             
-            # سوئیچ به iframe
-            driver.switch_to.frame(iframe)
-            logging.info("Switched to iframe successfully")
-            
-            # اضافه کردن تاخیر بعد از سوئیچ
-            sleep(3)
-            
-            # چک کردن محتوای iframe
-            try:
-                page_content = driver.page_source
-                logging.info(f"Iframe content length: {len(page_content)}")
-                if "pokerplaza" not in page_content.lower():
-                    logging.warning("Iframe content might not be loaded correctly")
-            except Exception as content_error:
-                logging.error(f"Error checking iframe content: {content_error}")
-            
-            # ادامه کار با iframe
-            try:
-                # صبر برای پیدا شدن المان root
-                WebDriverWait(driver, 30).until(
-                    EC.presence_of_element_located((By.XPATH, '//*[@id="root"]'))
-                )
-                logging.info("Found root element in iframe")
-                
-                # صبر برای ناپدید شدن لودینگ
-                WebDriverWait(driver, 30).until(
-                    EC.invisibility_of_element_located((By.CLASS_NAME, "lobby-loader"))
-                )
-                logging.info("Loading completed")
-                
-                # کمی تاخیر اضافی برای اطمینان
-                sleep(2)
-                
-                # کلیک روی لینک تورنمنت‌ها
-                tournament_link = WebDriverWait(driver, 30).until(
-                    EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div[1]/div/section[1]/header/div[1]/ul/li[2]/a'))
-                )
-                logging.info("Tournament link is clickable")
-                
-                # اطمینان از عدم وجود لودینگ
-                if not driver.find_elements(By.CLASS_NAME, "lobby-loader"):
-                    tournament_link.click()
-                    logging.info("Clicked on tournament link")
-                else:
-                    logging.warning("Loading element still present")
-                    raise Exception("Loading element still present")
-                
-            except Exception as e:
-                logging.error(f"Error in iframe interaction: {e}")
-                raise
+            # کلیک روی لینک تورنمنت‌ها
+            tournament_link = WebDriverWait(driver, 30).until(
+                EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div[1]/div/section[1]/header/div[1]/ul/li[2]/a'))
+            )
+            tournament_link.click()
+            logging.info("Clicked on tournament link")
             
         except Exception as e:
-            logging.error(f"Error with iframe: {e}")
-            # نمایش تمام iframeهای موجود و اطلاعات صفحه
-            try:
-                iframes = driver.find_elements(By.TAG_NAME, "iframe")
-                logging.info(f"Found {len(iframes)} iframes:")
-                for i, frame in enumerate(iframes):
-                    logging.info(f"Frame {i} src: {frame.get_attribute('src')}")
-                
-                # چاپ کردن HTML صفحه برای دیباگ
-                logging.info("Page source snippet:")
-                logging.info(driver.page_source[:500])  # فقط 500 کاراکتر اول
-            except Exception as debug_error:
-                logging.error(f"Error during debug: {debug_error}")
-            
-            # برگشت به فریم اصلی
-            driver.switch_to.default_content()
+            logging.error(f"Error in poker interaction: {e}")
             raise
             
-        # ثبت‌نام در اولین تورنمنت
-        WebDriverWait(driver, 10).until(
-            EC.element_to_be_clickable((By.XPATH, '/html/body/div[1]/div/div[1]/div/section[1]/div/div/div[1]/div/div[2]/div[2]/div/div[6]/div/span/button'))
-        ).click()
-        WebDriverWait(driver, 10).until(
-            EC.element_to_be_clickable((By.XPATH, '/html/body/div[1]/div/div[2]/div/view/div/div[2]/button'))
-        ).click()
-
-        # گزارش موفقیت
-        logging.info(f"Account {username} registered successfully.")
     except Exception as e:
         logging.error(f"Error processing account {username}: {str(e)}")
         raise
