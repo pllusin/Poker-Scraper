@@ -1,0 +1,60 @@
+2024-11-27 08:31:44 | INFO | mozhgan | Starting process for account: mozhgan
+2024-11-27 08:31:44 | INFO | mozhgan | Running in BALANCE CHECK mode
+2024-11-27 08:31:44 | INFO | mozhgan | Creating Firefox driver...
+2024-11-27 08:31:45 | INFO | mozhgan | Firefox driver created successfully
+2024-11-27 08:31:56 | ERROR | mozhgan | Error processing account: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2024-11-27 08:31:56 | INFO | mozhgan | Driver closed
+2024-11-27 08:32:01 | INFO | mozhgan | Starting process for account: mozhgan
+2024-11-27 08:32:01 | INFO | mozhgan | Running in BALANCE CHECK mode
+2024-11-27 08:32:01 | INFO | mozhgan | Creating Firefox driver...
+2024-11-27 08:32:02 | INFO | mozhgan | Firefox driver created successfully
+2024-11-27 08:32:08 | ERROR | mozhgan | Error processing account: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2024-11-27 08:33:05 | INFO | mozhgan | Starting process for account: mozhgan
+2024-11-27 08:33:05 | INFO | mozhgan | Running in BALANCE CHECK mode
+2024-11-27 08:33:05 | INFO | mozhgan | Creating Firefox driver...
+2024-11-27 08:33:07 | INFO | mozhgan | Firefox driver created successfully
+2024-11-27 08:33:09 | ERROR | mozhgan | Error processing account: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2024-11-27 08:33:09 | INFO | mozhgan | Driver closed
+2024-11-27 08:33:14 | INFO | mozhgan | Starting process for account: mozhgan
+2024-11-27 08:33:14 | INFO | mozhgan | Running in BALANCE CHECK mode
+2024-11-27 08:33:14 | INFO | mozhgan | Creating Firefox driver...
+2024-11-27 08:33:16 | INFO | mozhgan | Firefox driver created successfully
+2024-11-27 08:33:17 | ERROR | mozhgan | Error processing account: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2024-11-27 08:33:20 | INFO | mozhgan | Starting process for account: mozhgan
+2024-11-27 08:33:20 | INFO | mozhgan | Running in BALANCE CHECK mode
+2024-11-27 08:33:20 | INFO | mozhgan | Creating Firefox driver...
+2024-11-27 08:33:22 | INFO | mozhgan | Firefox driver created successfully
+2024-11-27 08:33:43 | INFO | mozhgan | Website loaded successfully
+2024-11-27 08:33:44 | INFO | mozhgan | Advertisement closed
+2024-11-27 08:33:46 | INFO | mozhgan | Login successful
+2024-11-27 08:33:48 | INFO | mozhgan | Balance dropdown clicked
+2024-11-27 08:33:53 | SUCCESS | mozhgan | 
+Balance Report for mozhgan:
+🎲 Poker Balance: 0.01 TRY
+🎮 Poker Game Balance: 0.22 TRY
+🎰 Casino Balance: 0.0 TRY
+        
+2024-11-27 08:33:56 | INFO | mozhgan | Driver closed
+2024-11-27 08:34:03 | INFO | mozhgan | Account mozhgan is already registered for tournament: 10.000 TL Omaha4 Ücretsiz Turnuva
+2024-11-27 08:43:13 | INFO | mozhgan | Account mozhgan is already registered for tournament: 10.000 TL Omaha4 Ücretsiz Turnuva
+2024-11-27 08:43:16 | INFO | mozhgan | Starting process for account: mozhgan
+2024-11-27 08:43:16 | INFO | mozhgan | Running in BALANCE CHECK mode
+2024-11-27 08:43:16 | INFO | mozhgan | Creating Firefox driver...
+2024-11-27 08:43:18 | INFO | mozhgan | Firefox driver created successfully
+2024-11-27 08:43:22 | INFO | mozhgan | Website loaded successfully
+2024-11-27 08:43:22 | WARNING | mozhgan | Trying to close advertisement with JavaScript...
+2024-11-27 08:43:22 | WARNING | mozhgan | Could not close advertisement
+2024-11-27 08:43:22 | ERROR | mozhgan | Error processing account: Message: WebDriver session does not exist, or is not active
+Stacktrace:
+RemoteError@chrome://remote/content/shared/RemoteError.sys.mjs:8:8
+WebDriverError@chrome://remote/content/shared/webdriver/Errors.sys.mjs:193:5
+InvalidSessionIDError@chrome://remote/content/shared/webdriver/Errors.sys.mjs:448:5
+assert.that/<@chrome://remote/content/shared/webdriver/Assert.sys.mjs:515:13
+assert.session@chrome://remote/content/shared/webdriver/Assert.sys.mjs:37:4
+despatch@chrome://remote/content/marionette/server.sys.mjs:315:19
+execute@chrome://remote/content/marionette/server.sys.mjs:289:16
+onPacket/<@chrome://remote/content/marionette/server.sys.mjs:262:20
+onPacket@chrome://remote/content/marionette/server.sys.mjs:263:9
+_onJSONObjectReady/<@chrome://remote/content/marionette/transport.sys.mjs:494:20
+
+2024-11-27 08:43:22 | INFO | mozhgan | Driver closed
