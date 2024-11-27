@@ -138,8 +138,14 @@ def create_driver(logger):
     try:
         options = Options()
         
+        # تنظیم مسیر دقیق باینری فایرفاکس
+        firefox_binary = '/usr/bin/firefox'  # مسیر پیش‌فرض در اوبونتو
+        if not os.path.exists(firefox_binary):
+            firefox_binary = '/snap/bin/firefox'  # مسیر جایگزین برای نصب snap
+        
+        options.binary_location = firefox_binary
+        
         if HEADLESS_MODE:
-            # تنظیمات جدید برای حالت هدلس
             options.add_argument('--headless')
             options.add_argument('--no-sandbox')
             options.add_argument('--disable-dev-shm-usage')
@@ -148,7 +154,7 @@ def create_driver(logger):
             options.add_argument('--start-maximized')
             options.add_argument('--disable-extensions')
             
-            # تنظیم محیط برای اجرا در سرور
+            # تنظیمات اضافی برای حالت هدلس
             options.set_preference('browser.cache.disk.enable', False)
             options.set_preference('browser.cache.memory.enable', False)
             options.set_preference('browser.cache.offline.enable', False)
@@ -157,7 +163,9 @@ def create_driver(logger):
         if DISABLE_BLINK_FEATURES:
             options.add_argument("--disable-blink-features=AutomationControlled")
         
-        # تنظیمات جدید برای رفع مشکل لود نشدن jQuery و iframe
+        logger.info("Creating Firefox driver...")
+
+          # تنظیمات جدید برای رفع مشکل لود نشدن jQuery و iframe
         options.set_preference("network.http.connection-timeout", 60000)
         options.set_preference("dom.ipc.plugins.enabled.libflashplayer.so", True)
         options.set_preference("media.navigator.permission.disabled", True)
@@ -181,9 +189,7 @@ def create_driver(logger):
         options.set_preference("javascript.enabled", True)
         options.set_preference("dom.disable_beforeunload", True)
         
-        logger.info("Creating Firefox driver...")
-        
-        # تغییر مسیر geckodriver برای سرور
+        # تلاش برای یافتن geckodriver
         try:
             # اول تلاش می‌کنیم از مسیر نسبی
             service = Service('./geckodriver')
@@ -200,7 +206,6 @@ def create_driver(logger):
                 service = Service('geckodriver')
                 driver = webdriver.Firefox(service=service, options=options)
         
-        # تنظیم timeout ها
         driver.set_page_load_timeout(60)
         driver.set_script_timeout(60)
         
