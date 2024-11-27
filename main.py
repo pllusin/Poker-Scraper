@@ -139,7 +139,20 @@ def create_driver(logger):
         options = Options()
         
         if HEADLESS_MODE:
+            # تنظیمات جدید برای حالت هدلس
             options.add_argument('--headless')
+            options.add_argument('--no-sandbox')
+            options.add_argument('--disable-dev-shm-usage')
+            options.add_argument('--disable-gpu')
+            options.add_argument('--window-size=1920,1080')
+            options.add_argument('--start-maximized')
+            options.add_argument('--disable-extensions')
+            
+            # تنظیم محیط برای اجرا در سرور
+            options.set_preference('browser.cache.disk.enable', False)
+            options.set_preference('browser.cache.memory.enable', False)
+            options.set_preference('browser.cache.offline.enable', False)
+            options.set_preference('network.http.use-cache', False)
         
         if DISABLE_BLINK_FEATURES:
             options.add_argument("--disable-blink-features=AutomationControlled")
@@ -169,11 +182,26 @@ def create_driver(logger):
         options.set_preference("dom.disable_beforeunload", True)
         
         logger.info("Creating Firefox driver...")
-        service = Service()                            
-        driver = webdriver.Firefox(service=service, options=options)
+        
+        # تغییر مسیر geckodriver برای سرور
+        try:
+            # اول تلاش می‌کنیم از مسیر نسبی
+            service = Service('./geckodriver')
+            driver = webdriver.Firefox(service=service, options=options)
+        except Exception as e:
+            logger.warning(f"Could not create driver with relative path: {e}")
+            try:
+                # سپس تلاش می‌کنیم از مسیر کامل
+                service = Service('/usr/local/bin/geckodriver')
+                driver = webdriver.Firefox(service=service, options=options)
+            except Exception as e:
+                logger.warning(f"Could not create driver with absolute path: {e}")
+                # در نهایت تلاش می‌کنیم از PATH سیستم
+                service = Service('geckodriver')
+                driver = webdriver.Firefox(service=service, options=options)
         
         # تنظیم timeout ها
-        driver.set_page_load_timeout(60)  # افزایش timeout
+        driver.set_page_load_timeout(60)
         driver.set_script_timeout(60)
         
         logger.info("Firefox driver created successfully")
