@@ -188,8 +188,9 @@ def create_driver(logger):
         # تنظیمات JavaScript
         options.set_preference("javascript.enabled", True)
         options.set_preference("dom.disable_beforeunload", True)
+
         
-        # تلاش برای یافتن geckodriver
+        # تلاش برای یاف��ن geckodriver
         try:
             # اول تلاش می‌کنیم از مسیر نسبی
             service = Service('./geckodriver')
@@ -448,34 +449,47 @@ def handle_tournament_registration(driver, username):
         }
         logging.info(f"Tournament details: {tournament_info}")
         
-        # بررسی وضعیت دکمه ثبت‌نام
         try:
+            # بررسی دکمه unregister
             unregister_button = first_tournament.find_element(By.CSS_SELECTOR, "button.error")
             logging.info("Found unregister button - User is already registered")
-            
-            # بروزرسانی اطلاعات در فایل اکسل
+
             update_account_info(
                 ACCOUNTS_FILE,
                 username,
                 registered=True,
                 tournament_name=tournament_info['name']
             )
-            
+
             return {
                 'status': 'already_registered',
                 'tournament': tournament_info,
                 'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             }
             
-        except Exception as e:
-            # اگر دکمه unregister پیدا نشد، دنبال دکمه register می‌گردیم
+        except Exception:
             try:
+                # کلیک روی دکمه register
                 register_button = first_tournament.find_element(By.CSS_SELECTOR, "button.tournaments__right-register")
                 logging.info("Found register button - Proceeding with registration")
-                
-                # ادامه روند ثبت‌نام
                 register_button.click()
-                logging.info("Clicked register button")
+                logging.info("Clicked first register button")
+                sleep(2)
+                
+                # منتظر باز شدن فریم و کلیک روی دکمه register داخل فریم
+                register_confirm = WebDriverWait(driver, 10).until(
+                    EC.element_to_be_clickable((By.XPATH, '/html/body/div[1]/div/div[2]/div/view/div/div[2]/button'))
+                )
+                register_confirm.click()
+                logging.info("Clicked register confirm button")
+                sleep(2)
+                
+                # منتظر تغییر محتوای فریم و کلیک روی دکمه OK
+                ok_button = WebDriverWait(driver, 10).until(
+                    EC.element_to_be_clickable((By.XPATH, '/html/body/div[1]/div/div[2]/div/view/div/div[2]/button'))
+                )
+                ok_button.click()
+                logging.info("Clicked final OK button")
                 sleep(2)
                 
                 # بروزرسانی اطلاعات در فایل اکسل
@@ -493,18 +507,13 @@ def handle_tournament_registration(driver, username):
                 }
                 
             except Exception as e:
-                logging.error(f"Could not find register button: {e}")
+                logging.error(f"Error during registration process: {e}")
                 return {
                     'status': 'error',
-                    'error': 'Register button not found',
+                    'error': str(e),
                     'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                 }
-
-        return {
-            'status': 'already_registered',
-            'tournament': tournament_info,
-            'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        }
+                
     except Exception as e:
         logging.error(f"Error during tournament registration: {e}")
         return {
