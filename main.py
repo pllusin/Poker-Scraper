@@ -34,22 +34,23 @@ EXCLUDE_AUTOMATION = os.getenv('EXCLUDE_AUTOMATION', 'true').lower() == 'true'
 # تغییر در بخش پارس کردن آرگومان‌ها
 parser = argparse.ArgumentParser(description='Poker Tournament Registration Bot')
 
-# اضافه کردن آرگومان اجباری برای فایل اکسل
-parser.add_argument('excel_file', type=str, help='Path to Excel file containing accounts')
+# تغییر آرگومان اکسل به لیستی از فایل‌ها
+parser.add_argument('excel_files', type=str, nargs='+', help='Path to Excel file(s) containing accounts')
 
-# اضافه کردن آرگومان‌های اختیاری به صورت گروه
-group = parser.add_mutually_exclusive_group(required=True)
-group.add_argument('--event', action='store_true', help='Run tournament registration')
-group.add_argument('--balance', action='store_true', help='Only check balances')
+# حذف گروه متقابلاً انحصاری و اضافه کردن آرگومان‌های مستقل
+parser.add_argument('--event', action='store_true', help='Run tournament registration')
+parser.add_argument('--balance', action='store_true', help='Check balances')
 
 args = parser.parse_args()
 
+# اگر هیچ عملیاتی انتخاب نشده، خطا نمایش داده شود
+if not (args.event or args.balance):
+    parser.error("At least one of --event or --balance must be specified")
+
 # تنظیم متغیرهای گلوبال
 CHECK_BALANCE = args.balance
-ACCOUNTS_FILE = args.excel_file  # استفاده از فایل اکسل از آرگومان‌ها
-
-# حذف این خط چون دیگه از env نمیخونیم
-# ACCOUNTS_FILE = os.getenv('ACCOUNTS_FILE')
+RUN_EVENT = args.event
+ACCOUNTS_FILE = args.excel_files
 
 def setup_main_logger():
     logger = verboselogs.VerboseLogger('Main')
@@ -190,7 +191,7 @@ def create_driver(logger):
         options.set_preference("dom.disable_beforeunload", True)
 
         
-        # تلاش برای یاف��ن geckodriver
+        # تلاش برای یافن geckodriver
         try:
             # اول تلاش می‌کنیم از مسیر نسبی
             service = Service('./geckodriver')
@@ -413,8 +414,8 @@ def login_and_register(account):
                 return
             
         except Exception as e:
-                logging.error(f"Error in Iframe account: {e}")
-                return
+            logging.error(f"Error in Iframe account: {e}")
+            return
 
         
     except Exception as e:
@@ -760,9 +761,35 @@ def print_banner():
 if __name__ == "__main__":
     print_banner()
     setup_logging()  # تنظیم لاگینگ در ابتدای برنامه
-    create_excel_if_not_exists(ACCOUNTS_FILE)
-    accounts = read_accounts(ACCOUNTS_FILE)
-    main_logger.info(f"Loaded {len(accounts)} accounts.")
     
-    schedule_jobs(accounts, THREADS)
+    # پردازش هر فایل اکسل به ترتیب
+    for excel_file in ACCOUNTS_FILE:
+        main_logger.info(f"Processing Excel file: {excel_file}")
+        
+        try:
+            create_excel_if_not_exists(excel_file)
+            accounts = read_accounts(excel_file)
+            main_logger.info(f"Loaded {len(accounts)} accounts from {excel_file}")
+            
+            if RUN_EVENT:
+                main_logger.info("Running tournament registration...")
+                schedule_jobs(accounts, THREADS)
+                
+            if CHECK_BALANCE:
+                main_logger.info("Running balance check...")
+                # برای چک بالانس، همه اکانت‌ها را مستقیماً پردازش می‌کنیم
+                with ThreadPoolExecutor(max_workers=THREADS) as executor:
+                    futures = [executor.submit(login_and_register, account) for account in accounts]
+                    for future in futures:
+                        try:
+                            future.result()
+                        except Exception as e:
+                            main_logger.error(f"Task failed: {e}")
+                            continue
+                            
+        except Exception as e:
+            main_logger.error(f"Error processing file {excel_file}: {e}")
+            continue
+            
+    main_logger.success("All Excel files processed successfully")
 
